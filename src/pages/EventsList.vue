@@ -3,9 +3,25 @@
     <v-card>
       <v-card-title>
         <h2>Events</h2>
+        <v-btn-toggle class="ml-4" v-model="viewToggle" mandatory>
+          <v-btn icon @click="viewStyle='calendar'">
+            <v-icon>mdi-calendar</v-icon>
+          </v-btn>
+          <v-btn icon @click="viewStyle='table'">
+            <v-icon>mdi-table</v-icon>
+          </v-btn>
+        </v-btn-toggle>
       </v-card-title>
       <v-row grid>
-        <v-col>
+        <!-- Table View -->
+        <v-col v-if="viewStyle === 'table'">
+          <v-data-table
+            :headers="dataTable.headers"
+            :items="events"
+          ></v-data-table>
+        </v-col>
+        <!-- Calendar View-->
+        <v-col v-if="viewStyle === 'calendar'">
           <v-sheet height="64">
             <v-toolbar flat>
               <v-toolbar-title v-if="$refs.calendar">
@@ -103,6 +119,7 @@
             </v-menu>
           </v-sheet>
         </v-col>
+        <!-- Calendar View-->
       </v-row>
     </v-card>
 
@@ -160,6 +177,7 @@ export default {
       data: null,
     },
     confirmDialogOpen: false,
+    viewToggle: 0,
     colors: [
       "blue",
       "indigo",
@@ -174,7 +192,22 @@ export default {
       color: "red",
       message: "",
     },
-    loading: true // for sending api request
+    viewStyle: "calendar",
+    dataTable: {
+      headers: [
+        {
+          text: "Name",
+          align: "start",
+          value: "name",
+        },
+        { text: "Description", value: "description" },
+        { text: "Venue", value: "venue" },
+        { text: "Start", value: "tbl_start_time" },
+        { text: "End", value: "tbl_end_time" },
+        { text: "Date Created", value: "date_created" },
+      ],
+    },
+    loading: true, // for sending api request
   }),
   mounted() {
     this.updateEvents();
@@ -189,7 +222,7 @@ export default {
     next() {
       this.$refs.calendar.next();
     },
-    showEvent({event, nativeEvent}) {
+    showEvent({ event, nativeEvent }) {
       if (this.loading) return; // check if api request is ongoing
 
       this.selectedEvent = event;
@@ -239,32 +272,35 @@ export default {
       // api request
       this.loading = true;
       try {
-      let responseEvents = await getEvents();
+        let responseEvents = await getEvents();
 
-      let events = [];
-      for (let event of responseEvents) {
-        // updating selected event after an api call
-        if (this.selectedEvent && this.selectedEvent.id === event.id) {
-          this.selectedEvent = event;
+        let events = [];
+        for (let event of responseEvents) {
+          // updating selected event after an api call
+          if (this.selectedEvent && this.selectedEvent.id === event.id) {
+            this.selectedEvent = event;
+          }
+          events.push({
+            id: event.id,
+            name: event.name,
+            description: event.description,
+            venue: event.venue,
+            start_time: event.start_time,
+            end_time: event.end_time,
+            users: event.users,
+            start: new Date(Date.parse(event.start_time)),
+            end: new Date(Date.parse(event.end_time)),
+            color: this.colors[this.rnd(0, this.colors.length - 1)],
+            tbl_start_time: this.getDateFormatPretty(event.start_time),
+            tbl_end_time: this.getDateFormatPretty(event.end_time),
+            date_created: this.getDateFormatPretty(event.date_created),
+            timed: false,
+          });
         }
-        events.push({
-          id: event.id,
-          name: event.name,
-          description: event.description,
-          venue: event.venue,
-          start_time: event.start_time,
-          end_time: event.end_time,
-          users: event.users,
-          start: new Date(Date.parse(event.start_time)),
-          end: new Date(Date.parse(event.end_time)),
-          color: this.colors[this.rnd(0, this.colors.length - 1)],
-          timed: false,
-        });
-      }
 
-      this.events = events;
+        this.events = events;
       } catch (er) {
-        console.log('er', er);
+        console.log("er", er);
       } finally {
         this.loading = false;
       }
@@ -299,7 +335,7 @@ export default {
     },
     onEventSaveSuccess() {
       this.updateEvents();
-    },
-  },
+    }
+  }
 };
 </script>
