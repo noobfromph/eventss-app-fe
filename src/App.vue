@@ -7,7 +7,7 @@
           @click.stop="drawer = !drawer"
         ></v-app-bar-nav-icon>
       </v-app-bar>
-      <v-navigation-drawer v-model="drawer" absolute bottom primary light>
+      <v-navigation-drawer v-model="drawer" fixed bottom primary light>
         <v-list-item class="side-nav" link :to="'/'" @click="drawer = false">
           <v-list-item-avatar>
             <v-icon>mdi-calendar</v-icon>
