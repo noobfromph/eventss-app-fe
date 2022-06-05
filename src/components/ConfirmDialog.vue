@@ -5,8 +5,8 @@
         >Are you sure you want to delete this event? This cannot be
         undone.</v-card-text
       >
-      <v-btn class="mr-4" color="primary" @click="confirm">Yes</v-btn>
-      <v-btn @click="open = false">Cancel</v-btn>
+      <v-btn class="mr-4" color="error" @click="confirm">Yes</v-btn>
+      <v-btn @click="open = false" color="primary">Cancel</v-btn>
     </v-card>
   </v-dialog>
 </template>
