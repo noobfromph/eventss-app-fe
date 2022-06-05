@@ -45,7 +45,6 @@
         </v-container>
       </v-main>
       <!-- global snackbar -->
-      {{ snackbar }}
       <v-snackbar
         v-model="snackbar.open"
         :color="snackbar.color"
