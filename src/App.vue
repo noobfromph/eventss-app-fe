@@ -44,6 +44,19 @@
           </v-row>
         </v-container>
       </v-main>
+      <!-- global snackbar -->
+      {{ snackbar }}
+      <v-snackbar
+        v-model="snackbar.open"
+        :color="snackbar.color"
+        top
+        class="mt-12"
+      >
+        {{ snackbar.message }}
+        <template v-slot:action="{ attrs }">
+          <v-btn text v-bind="attrs" @click="closeSnackbar"> Close </v-btn>
+        </template>
+      </v-snackbar>
     </v-app>
   </div>
 </template>
@@ -55,6 +68,16 @@ export default {
   data: () => ({
     drawer: false,
   }),
+  methods: {
+    closeSnackbar() {
+      this.$store.commit("closeSnackBar");
+    },
+  },
+  computed: {
+    snackbar() {
+      return this.$store.getters["getSnackbar"];
+    },
+  },
 };
 </script>
 

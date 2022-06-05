@@ -30,12 +30,6 @@
         </form>
       </v-card>
     </v-dialog>
-    <v-snackbar v-model="snackbar" :color="message_color" top class="mt-12">
-      {{ message }}
-      <template v-slot:action="{ attrs }">
-        <v-btn text v-bind="attrs" @click="snackbar = false"> Close </v-btn>
-      </template>
-    </v-snackbar>
   </div>
 </template>
 <script>
@@ -50,29 +44,30 @@ export default {
   },
   data() {
     return {
-      userDetail: {},
-      snackbar: false,
-      message: null,
-      message_color: "red",
+      userDetail: {}
     };
   },
   methods: {
     async submit() {
+      let snackbarData = {}; // snackbar data
+
       try {
         await createUser(this.userDetail);
-        this.message = "User created!";
-        this.message_color = "success";
+        snackbarData.message = "User created!";
+        snackbarData.color = "success";
         this.open = false;
         this.$emit("save");
       } catch (err) {
         if (typeof err.response.data == "object") {
-          this.message = err.response.data.message;
+          snackbarData.message = err.response.data.message;
         } else {
-          this.message = err.response.data;
+          snackbarData.message = err.response.data;
         }
-        this.message_color = "red";
+        snackbarData.color = "red";
       } finally {
-        this.snackbar = true;
+        snackbarData.open = true;
+        // store
+        this.$store.commit('setSnackBar', snackbarData); // commit snackbar data
       }
     },
     cancel() {

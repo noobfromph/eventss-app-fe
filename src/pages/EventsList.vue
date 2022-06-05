@@ -138,13 +138,6 @@
       @value="onConfirmDialogValueChange"
       @yes="onConfirmDialogYes"
     ></confirm-dialog>
-
-    <v-snackbar v-model="snackbar.open" :color="snackbar.color">
-      {{ snackbar.message }}
-      <template v-slot:action="{ attrs }">
-        <v-btn text v-bind="attrs" @click="snackbar.open = false">Close</v-btn>
-      </template>
-    </v-snackbar>
   </div>
 </template>
 
@@ -187,11 +180,6 @@ export default {
       "orange",
       "grey darken-1",
     ],
-    snackbar: {
-      open: false,
-      color: "red",
-      message: "",
-    },
     viewStyle: "calendar",
     dataTable: {
       headers: [
@@ -312,15 +300,17 @@ export default {
       this.confirmDialogOpen = val;
     },
     async onConfirmDialogYes() {
+      let snackbarData = {}; // snackbar data
       try {
         await deleteEvent(this.selectedEvent.id);
-        this.snackbar.message = "Successfully deleted!";
-        this.snackbar.color = "success";
+        snackbarData.message = "Successfully deleted!";
+        snackbarData.color = "success";
       } catch (err) {
-        this.snackbar.message = err;
-        this.snackbar.color = "red";
+        snackbarData.message = err;
+        snackbarData.color = "red";
       } finally {
-        this.snackbar.open = true;
+        snackbarData.open = true;
+        this.$store.commit('setSnackBar', snackbarData); // commit snackbar data
         this.updateEvents();
       }
     },

@@ -53,6 +53,7 @@ export default {
       this.picker = null;
     },
     cancel() {
+      this.picker = null;
       this.open = false;
     },
   },

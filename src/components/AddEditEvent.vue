@@ -61,12 +61,6 @@
         </form>
       </v-card>
     </v-dialog>
-    <v-snackbar v-model="snackbar" :color="message_color">
-      {{ message }}
-      <template v-slot:action="{ attrs }">
-        <v-btn text v-bind="attrs" @click="snackbar = false">Close</v-btn>
-      </template>
-    </v-snackbar>
     <time-picker
       :value="timePickerOpen"
       :pickerFor="pickerFor"
@@ -113,9 +107,6 @@ export default {
         end_time: null
       },
       users: [],
-      snackbar: false,
-      message: null,
-      message_color: "red",
       timePickerOpen: false,
       pickerFor: "start_time",
       loading: false,
@@ -123,6 +114,8 @@ export default {
   },
   methods: {
     async submit() {
+      let snackbarData = {}; // snackbar data
+
       // executed when the save button is clicked
       try {
         this.loading = true; // set as requesting in progress
@@ -135,16 +128,16 @@ export default {
           // send the request
           await createEvent(data);
           // messages
-          this.message_color = "success";
-          this.message = "Event created!";
+          snackbarData.color = "success";
+          snackbarData.message = "Event created!";
         } else {
           // send the request
           let eventId = data.id;
           delete data.id;
           await updateEvent(eventId, data);
           // messages
-          this.message_color = "success";
-          this.message = "Event updated!";
+          snackbarData.color = "success";
+          snackbarData.message = "Event updated!";
         }
 
         this.open = false;
@@ -152,14 +145,16 @@ export default {
         this.$emit("onSaveSuccess"); // edit this event so that te listener can reload the list
       } catch (err) {
         if (typeof err.response.data == "object") {
-          this.message = err.response.data.message;
+          snackbarData.message = err.response.data.message;
         } else {
-          this.message = err.response.data;
+          snackbarData.message = err.response.data;
         }
-        this.message_color = "red";
+        snackbarData.color = "red";
       } finally {
         this.loading = false;
-        this.snackbar = true;
+        snackbarData.open = true;
+        // store
+        this.$store.commit('setSnackBar', snackbarData); // commit snackbar data
       }
     },
     resetEvent() {
