@@ -73,7 +73,6 @@ export default {
       let users = [];
       for (let user of responseUsers) {
         user.date_created = this.getDateFormatPretty(user.date_created); // method from mixins
-        console.log("user", this.getDateFormatPretty(user.date_created)); // method from mixins
         users.push(user);
       }
 
@@ -86,5 +85,6 @@ export default {
 <style scope="col">
 .btn-create {
   margin-bottom: 100px;
+  position: fixed;
 }
 </style>

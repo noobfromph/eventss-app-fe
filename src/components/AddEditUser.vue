@@ -2,7 +2,7 @@
   <div>
     <v-dialog v-model="open" width="300">
       <v-card class="pa-7">
-        <v-card-title>Create new Event</v-card-title>
+        <v-card-title>Create new User</v-card-title>
         <form>
           <v-text-field
             label="First name"
@@ -25,12 +25,12 @@
             required
             v-model="userDetail.address"
           ></v-text-field>
-          <v-btn class="mr-4" @click="submit"> Submit </v-btn>
-          <v-btn> Cancel</v-btn>
+          <v-btn class="mr-4" @click="submit" color="primary"> Submit </v-btn>
+          <v-btn @click="cancel"> Cancel</v-btn>
         </form>
       </v-card>
     </v-dialog>
-    <v-snackbar v-model="snackbar" :color="message_color">
+    <v-snackbar v-model="snackbar" :color="message_color" top class="mt-12">
       {{ message }}
       <template v-slot:action="{ attrs }">
         <v-btn text v-bind="attrs" @click="snackbar = false"> Close </v-btn>
@@ -63,7 +63,7 @@ export default {
         this.message = "User created!";
         this.message_color = "success";
         this.open = false;
-        this.$emit('save');
+        this.$emit("save");
       } catch (err) {
         if (typeof err.response.data == "object") {
           this.message = err.response.data.message;
@@ -74,6 +74,10 @@ export default {
       } finally {
         this.snackbar = true;
       }
+    },
+    cancel() {
+      this.userDetail = {};
+      this.open = false;
     },
   },
   computed: {
@@ -88,10 +92,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.closeDialogBtn {
-  border-radius: 8px;
-  letter-spacing: 0px !important;
-}
-</style>
