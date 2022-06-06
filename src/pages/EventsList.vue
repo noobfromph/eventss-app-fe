@@ -4,10 +4,10 @@
       <v-card-title>
         <h2>Events</h2>
         <v-btn-toggle class="ml-4" v-model="viewToggle" mandatory>
-          <v-btn icon @click="viewStyle='calendar'">
+          <v-btn icon @click="viewStyle = 'calendar'">
             <v-icon>mdi-calendar</v-icon>
           </v-btn>
-          <v-btn icon @click="viewStyle='table'">
+          <v-btn icon @click="viewStyle = 'table'">
             <v-icon>mdi-table</v-icon>
           </v-btn>
         </v-btn-toggle>
@@ -15,10 +15,8 @@
       <v-row grid>
         <!-- Table View -->
         <v-col v-if="viewStyle === 'table'">
-          <v-data-table
-            :headers="dataTable.headers"
-            :items="events"
-          ></v-data-table>
+          <v-data-table :headers="dataTable.headers" :items="events">
+          </v-data-table>
         </v-col>
         <!-- Calendar View-->
         <v-col v-if="viewStyle === 'calendar'">
@@ -138,6 +136,11 @@
       @value="onConfirmDialogValueChange"
       @yes="onConfirmDialogYes"
     ></confirm-dialog>
+
+    <date-picker
+      :activatorVisible="viewStyle === 'table'"
+      @change="onDatePickerChange"
+    ></date-picker>
   </div>
 </template>
 
@@ -145,11 +148,13 @@
 import { getEvents, deleteEvent } from "@/api";
 import AddEventDialog from "@/components/AddEditEvent.vue";
 import ConfirmDialogVue from "@/components/ConfirmDialog.vue";
+import DatePickerVue from "@/components/DatePicker.vue";
 
 export default {
   components: {
     "event-dialog": AddEventDialog,
     "confirm-dialog": ConfirmDialogVue,
+    "date-picker": DatePickerVue,
   },
   data: () => ({
     focus: "",
@@ -192,7 +197,7 @@ export default {
         { text: "Venue", value: "venue" },
         { text: "Start", value: "tbl_start_time" },
         { text: "End", value: "tbl_end_time" },
-        { text: "Date Created", value: "date_created" },
+        { text: "Date Created", value: "date_created" }
       ],
     },
     loading: true, // for sending api request
@@ -237,6 +242,7 @@ export default {
       this.addEditDialog.mode = "add"; // add event
       this.addEditDialog.baseDate = data.date;
       this.addEditDialog.open = true;
+      console.log("addEditDialog", this.addEditDialog);
     },
     editEvent() {
       this.addEditDialog.mode = "edit"; // add event
@@ -310,7 +316,7 @@ export default {
         snackbarData.color = "red";
       } finally {
         snackbarData.open = true;
-        this.$store.commit('setSnackBar', snackbarData); // commit snackbar data
+        this.$store.commit("setSnackBar", snackbarData); // commit snackbar data
         this.updateEvents();
       }
     },
@@ -325,7 +331,14 @@ export default {
     },
     onEventSaveSuccess() {
       this.updateEvents();
-    }
-  }
+    },
+    onDatePickerChange(date) {
+      // construct date param
+      let dateData = {
+        date: date,
+      };
+      this.addEvent(dateData);
+    },
+  },
 };
 </script>

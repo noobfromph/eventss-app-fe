@@ -3,6 +3,9 @@ import Vue from 'vue'
 import vuetify from '@/plugins/vuetify' // path to vuetify plugin
 import '@mdi/font/css/materialdesignicons.css'
 
+// custom css
+import './css/custom.css'
+
 import router from './router'
 import store from './store'
 

@@ -48,7 +48,7 @@ export default {
         getDateFormatPretty(dateString) {
             if (!dateString) return dateString;
 
-            let momentDate = moment(dateString, 'YYYY-MM-DDTHH:mm:ss:fffZ');
+            let momentDate = moment(dateString, 'YYYY-MM-DDTHH:mm').utcOffset('+08');
             return momentDate.format('YYYY-MM-DD hh:mm A');
         }
     }

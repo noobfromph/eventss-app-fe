@@ -41,12 +41,10 @@
           <v-autocomplete
             v-model="event_detail.event_users"
             :items="users"
-            dense
             chips
             small-chips
             label="Participants"
             multiple
-            solo
             :disabled="loading"
           ></v-autocomplete>
           <v-btn

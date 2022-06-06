@@ -81,10 +81,3 @@ export default {
   },
 };
 </script>
-
-<style scope="col">
-.btn-create {
-  margin-bottom: 100px;
-  position: fixed;
-}
-</style>

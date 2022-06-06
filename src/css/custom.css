@@ -1,0 +1,10 @@
+/* Button create style */
+.btn-create {
+    margin-bottom: 100px;
+    position: fixed;
+}
+
+/* Override style for v-calendar item */
+.v-calendar-weekly__day {
+    cursor: pointer!important;
+}
