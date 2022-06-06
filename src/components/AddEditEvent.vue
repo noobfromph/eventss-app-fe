@@ -3,26 +3,32 @@
     <v-dialog v-model="open" width="350" :persistent="loading">
       <v-card class="pa-7">
         <v-card-title class="pa-0">Create new Event</v-card-title>
+        <!-- Input form -->
         <form>
+          <!-- the name text input -->
           <v-text-field
             label="Name"
             required
             v-model="event_detail.name"
             :disabled="loading"
           ></v-text-field>
+          <!-- the description text input -->
           <v-text-field
             label="Description"
             required
             v-model="event_detail.description"
             :disabled="loading"
           ></v-text-field>
+          <!-- the venue text input -->
           <v-text-field
             label="Venue"
             required
             v-model="event_detail.venue"
             :disabled="loading"
           ></v-text-field>
+          <!-- start and end time text inputs -->
           <div>
+            <!-- the start time picker -->
             <v-text-field
               label="Start"
               required
@@ -31,6 +37,7 @@
               :disabled="loading"
               @click="getTime('start_time')"
             ></v-text-field>
+            <!-- the end time picker -->
             <v-text-field
               label="End"
               required
@@ -40,6 +47,7 @@
               @click="getTime('end_time')"
             ></v-text-field>
           </div>
+          <!-- user picker input -->
           <v-autocomplete
             v-model="event_detail.event_users"
             :items="users"
@@ -49,6 +57,7 @@
             multiple
             :disabled="loading"
           ></v-autocomplete>
+          <!-- button submit -->
           <v-btn
             class="mr-4"
             @click="submit"
@@ -57,10 +66,13 @@
           >
             Submit
           </v-btn>
+          <!-- button cancel -->
           <v-btn @click="open = false" :disabled="loading">Cancel</v-btn>
         </form>
       </v-card>
     </v-dialog>
+
+    <!-- time picker dialog -->
     <time-picker
       :value="timePickerOpen"
       :pickerFor="pickerFor"
@@ -78,23 +90,28 @@ export default {
     "time-picker": TimePicker,
   },
   props: {
+    // value is binded to the v-model of this dialog
     value: {
       type: Boolean,
       default: false,
     },
+    // the date of the event to be created/updated
     baseDate: {
       type: String,
     },
+    // the data property is use when updating an event
     data: {
       type: Object,
     },
+    // the mode property is for identifying the operation
     mode: {
       type: String,
-      default: "add",
+      default: "add", // add | edit
     },
   },
   data() {
     return {
+      // v-model for the form
       event_detail: {
         start_time: null,
         end_time: null,
@@ -102,31 +119,43 @@ export default {
         venue: null,
         description: null,
       },
+      // v-model for start time and end time
       time_labels: {
         start_time: null,
         end_time: null
       },
+      // v-model for listing available users
       users: [],
+      // v-model for time picker dialog
       timePickerOpen: false,
+      // flag for identifying time picker result, could be for start or end time
+      // since we are using a single dialog for time picker
       pickerFor: "start_time",
+      // loading flag, true when api request is ongoing
       loading: false,
     };
   },
   methods: {
+    // executed when the save button is clicked
     async submit() {
       let snackbarData = {}; // snackbar data
 
-      // executed when the save button is clicked
       try {
         this.loading = true; // set as requesting in progress
         // create a copy of the event detail data
-        let data = this.copyJson(this.event_detail);
+        let data = this.copyJson(this.event_detail); // a mixin function
+
+        // format the dates to YYYY-MM-DDTHH:mm:ss.fffZ format 
         // append time with the base date
         data.start_time = `${this.baseDate}T${data.start_time}:00.000Z`;
         data.end_time = `${this.baseDate}T${data.end_time}:00.000Z`;
+
+        // this component has two functions
+        // this component can add new event or update an exiting event
+        // check operation mode
         if (this.mode === "add") {
           // send the request
-          await createEvent(data);
+          await createEvent(data); // api function
           // messages
           snackbarData.color = "success";
           snackbarData.message = "Event created!";
@@ -140,10 +169,11 @@ export default {
           snackbarData.message = "Event updated!";
         }
 
-        this.open = false;
-        this.resetEvent();
-        this.$emit("onSaveSuccess"); // edit this event so that te listener can reload the list
+        this.open = false; // close this component
+        this.resetEvent(); // reset event data
+        this.$emit("onSaveSuccess"); // emit this event so that the listener can reload the list
       } catch (err) {
+        // possible error is object because the server is using Joi validator
         if (typeof err.response.data == "object") {
           snackbarData.message = err.response.data.message;
         } else {
@@ -153,12 +183,14 @@ export default {
       } finally {
         this.loading = false;
         snackbarData.open = true;
-        // store
+        // Vuex store
         this.$store.commit('setSnackBar', snackbarData); // commit snackbar data
       }
     },
+
+    // a function to reset session data
     resetEvent() {
-      // a function to reset session data
+      // reset event detail
       this.event_detail = {
         start_time: null,
         end_time: null,
@@ -167,22 +199,26 @@ export default {
         description: null,
       };
 
+      // reset start and end time labels
       this.time_labels = {
         start_time: null,
         end_time: null
       };
     },
+
+    // called when the user clicked the start time or end time field
     getTime(pickerForTime) {
-      // called when the user clicked the start time or end time field
       this.pickerFor = pickerForTime;
       this.timePickerOpen = true;
     },
+
+    // called when the time picker v-model was changed
     onTimePickerChange(val) {
-      // called when the time picker v-model was changed
       this.timePickerOpen = val;
     },
+
+    // called when the change event is emitted from the time picker component
     setTime(val) {
-      // called when the change event is emitted from the time picker component
       if (this.pickerFor === "start_time") {
         this.event_detail.start_time = val.militaryHourFormat;
         this.time_labels.start_time = val.twelveHourFormat;

@@ -34,8 +34,8 @@ export default {
     };
   },
   methods: {
+    // Executed when the Save button is clicked
     save() {
-      // executed when the Save button was clicked
       // create a date string of the selected time
       // we will use this date string to get the 12 hour format of the selected time
       let dateString = `${this.getCurrentDate()}:${this.picker}`;
@@ -52,6 +52,7 @@ export default {
       this.open = false;
       this.picker = null;
     },
+
     cancel() {
       this.picker = null;
       this.open = false;

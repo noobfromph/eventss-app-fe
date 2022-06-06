@@ -1,8 +1,10 @@
 <template>
   <div>
     <v-card>
+      <!-- header -->
       <v-card-title>
         <h2>Events</h2>
+        <!-- toggle buttons: calendar and table view -->
         <v-btn-toggle class="ml-4" v-model="viewToggle" mandatory>
           <v-btn icon @click="viewStyle = 'calendar'">
             <v-icon>mdi-calendar</v-icon>
@@ -21,6 +23,7 @@
         <!-- Calendar View-->
         <v-col v-if="viewStyle === 'calendar'">
           <v-sheet height="64">
+            <!-- calendar header -->
             <v-toolbar flat>
               <v-toolbar-title v-if="$refs.calendar">
                 {{ $refs.calendar.title }}
@@ -55,6 +58,7 @@
               </v-menu>
             </v-toolbar>
           </v-sheet>
+          <!-- main calendar -->
           <v-sheet height="600">
             <v-calendar
               ref="calendar"
@@ -68,6 +72,7 @@
               @click:day="addEvent"
               @click:date="addEvent"
             ></v-calendar>
+            <!-- Event detail -->
             <v-menu
               v-model="selectedOpen"
               :close-on-content-click="false"
@@ -121,6 +126,7 @@
       </v-row>
     </v-card>
 
+    <!-- add/edit dialog -->
     <event-dialog
       :value="addEditDialog.open"
       :baseDate="addEditDialog.baseDate"
@@ -131,12 +137,14 @@
       ref="addEditDialog"
     ></event-dialog>
 
+    <!-- confirm dialog, confirmation for deleting -->
     <confirm-dialog
       :value="confirmDialogOpen"
       @value="onConfirmDialogValueChange"
       @yes="onConfirmDialogYes"
     ></confirm-dialog>
 
+    <!-- date picker when creating an event using table view -->
     <date-picker
       :activatorVisible="viewStyle === 'table'"
       @change="onDatePickerChange"
@@ -157,26 +165,26 @@ export default {
     "date-picker": DatePickerVue,
   },
   data: () => ({
-    focus: "",
-    type: "month",
-    typeToLabel: {
+    focus: "", // calendar focus
+    type: "month", // calendar type
+    typeToLabel: { // calendar view options
       month: "Month",
       week: "Week",
       day: "Day",
     },
-    selectedEvent: {},
-    selectedElement: null,
-    selectedOpen: false,
-    events: [],
-    addEditDialog: {
+    selectedEvent: {}, // calendar v-model when selecting an event
+    selectedElement: null, // calendar item dom object, to be used in the activator prop for the v-menu element
+    selectedOpen: false, // v-model for the event detail menu
+    events: [], // event list
+    addEditDialog: { // data for add/edit component
       open: false,
       mode: "add",
       baseDate: null,
       data: null,
     },
-    confirmDialogOpen: false,
-    viewToggle: 0,
-    colors: [
+    confirmDialogOpen: false, // v-model for confirm dialog
+    viewToggle: 0, // v-model for the button toggles, calendar or table view
+    colors: [ // event colors, used in random function  `rnd`
       "blue",
       "indigo",
       "deep-purple",
@@ -185,8 +193,8 @@ export default {
       "orange",
       "grey darken-1",
     ],
-    viewStyle: "calendar",
-    dataTable: {
+    viewStyle: "calendar", // view style, either calendar or table
+    dataTable: { // data table configuration, for table view
       headers: [
         {
           text: "Name",
@@ -206,15 +214,22 @@ export default {
     this.updateEvents();
   },
   methods: {
+    // returns the color of the event
     getEventColor(event) {
       return event.color;
     },
+
+    // calendar prev button
     prev() {
       this.$refs.calendar.prev();
     },
+
+    // calendar next button
     next() {
       this.$refs.calendar.next();
     },
+
+    // Executed when the an event item is clicked
     showEvent({ event, nativeEvent }) {
       if (this.loading) return; // check if api request is ongoing
 
@@ -236,6 +251,8 @@ export default {
 
       nativeEvent.stopPropagation();
     },
+
+    // Executed when a table cell is clicked
     addEvent(data) {
       if (this.loading) return; // check if api request is ongoing
 
@@ -243,6 +260,8 @@ export default {
       this.addEditDialog.baseDate = data.date;
       this.addEditDialog.open = true;
     },
+
+    // Executed when the edit button is clicked, edit button is located in the event detail menu
     editEvent() {
       this.addEditDialog.mode = "edit"; // add event
       // get a date from the selected event, we will use it as base date
@@ -255,17 +274,19 @@ export default {
         name: this.selectedEvent.name,
         description: this.selectedEvent.description,
         venue: this.selectedEvent.venue,
-        start_time: this.getTimeFromDate(this.selectedEvent.start_time),
-        end_time: this.getTimeFromDate(this.selectedEvent.end_time),
-        event_users: this.selectedEvent.users.map((user) => user.id),
+        start_time: this.getTimeFromDate(this.selectedEvent.start_time), // format date
+        end_time: this.getTimeFromDate(this.selectedEvent.end_time), // format date
+        event_users: this.selectedEvent.users.map((user) => user.id), // we only need user id here
       };
       this.addEditDialog.open = true;
     },
+
+    // Performs an api call and updates the events in the calendar
     async updateEvents() {
       // api request
       this.loading = true;
       try {
-        let responseEvents = await getEvents();
+        let responseEvents = await getEvents(); // api call
 
         let events = [];
         for (let event of responseEvents) {
@@ -273,6 +294,7 @@ export default {
           if (this.selectedEvent && this.selectedEvent.id === event.id) {
             this.selectedEvent = event;
           }
+          // construct an event for the calendar
           events.push({
             id: event.id,
             name: event.name,
@@ -298,12 +320,19 @@ export default {
         this.loading = false;
       }
     },
+
+    // Executed when the delete button is clicked
+    // shows a confirm dialog
     deleteEvent() {
       this.confirmDialogOpen = true;
     },
+
+    // cb function for confirm dialog
     onConfirmDialogValueChange(val) {
       this.confirmDialogOpen = val;
     },
+
+    // cb function when the confirm dialogs's Yes button is clicked
     async onConfirmDialogYes() {
       let snackbarData = {}; // snackbar data
       try {
@@ -319,18 +348,29 @@ export default {
         this.updateEvents();
       }
     },
+
+    // Returns a random number
+    // use in generating color
     rnd(a, b) {
       return Math.floor((b - a + 1) * Math.random()) + a;
     },
+
+    // cb function for add/edit dialog
     onDialogValueChange(val) {
       this.addEditDialog.open = val;
     },
+
+    // returns a formatted date
     getTimeFromDateString(dateString) {
-      return this.getHumanReadableTimeFromDateString(dateString);
+      return this.getHumanReadableTimeFromDateString(dateString); // a mixin function
     },
+
+    // cb function when saving an event is successful
     onEventSaveSuccess() {
       this.updateEvents();
     },
+
+    // cb function for date picker
     onDatePickerChange(date) {
       // construct date param
       let dateData = {

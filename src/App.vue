@@ -1,12 +1,14 @@
 <template>
   <div id="app">
     <v-app>
+      <!-- app bar -->
       <v-app-bar app color="pink">
         <v-app-bar-nav-icon
           color="white"
           @click.stop="drawer = !drawer"
         ></v-app-bar-nav-icon>
       </v-app-bar>
+      <!-- navigation drawer -->
       <v-navigation-drawer
         v-model="drawer"
         fixed

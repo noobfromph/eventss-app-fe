@@ -1,11 +1,13 @@
 <template>
   <div>
     <v-card>
+      <!-- header -->
       <v-card-title>
         <h2>Users</h2>
       </v-card-title>
       <v-row grid>
         <v-col>
+          <!-- table -->
           <v-data-table
             :headers="headers"
             :items="users"
@@ -25,6 +27,8 @@
       >
         <v-icon>mdi-plus</v-icon>
       </v-btn>
+
+      <!-- Add user dialog -->
       <add-edit-user
         :value="modalOpen"
         @value="onDialogValueChange"
@@ -42,9 +46,9 @@ export default {
   components: { AddEditUser },
   data() {
     return {
-      users: [],
-      search: null,
-      headers: [
+      users: [], // user list
+      search: null, 
+      headers: [ // data table configurations
         {
           text: "Firstname",
           align: "start",
@@ -62,12 +66,17 @@ export default {
     this.fetchUsers();
   },
   methods: {
+    // cb for add user dialog
     async onDialogValueChange(val) {
       this.modalOpen = val;
     },
+
+    // cb function when saving of user was successful
     onUserSave() {
       this.fetchUsers();
     },
+
+    // performs get request to get users and updates the table
     async fetchUsers() {
       let responseUsers = await getUsers();
       let users = [];
