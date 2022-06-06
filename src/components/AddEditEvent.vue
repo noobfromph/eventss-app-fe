@@ -26,6 +26,7 @@
             <v-text-field
               label="Start"
               required
+              readonly
               v-model="time_labels.start_time"
               :disabled="loading"
               @click="getTime('start_time')"
@@ -33,6 +34,7 @@
             <v-text-field
               label="End"
               required
+              readonly
               v-model="time_labels.end_time"
               :disabled="loading"
               @click="getTime('end_time')"
