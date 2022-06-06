@@ -197,7 +197,7 @@ export default {
         { text: "Venue", value: "venue" },
         { text: "Start", value: "tbl_start_time" },
         { text: "End", value: "tbl_end_time" },
-        { text: "Date Created", value: "date_created" }
+        { text: "Date Created", value: "date_created" },
       ],
     },
     loading: true, // for sending api request
@@ -242,7 +242,6 @@ export default {
       this.addEditDialog.mode = "add"; // add event
       this.addEditDialog.baseDate = data.date;
       this.addEditDialog.open = true;
-      console.log("addEditDialog", this.addEditDialog);
     },
     editEvent() {
       this.addEditDialog.mode = "edit"; // add event
